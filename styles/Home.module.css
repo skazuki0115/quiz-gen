@@ -1,0 +1,144 @@
+/* 全体コンテナ */
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 16px;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* タイトル */
+.title {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 2rem;
+  color: #333;
+}
+
+/* フォーム */
+.form {
+  margin-bottom: 20px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  margin-top: 4px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #0070f3;
+  box-shadow: 0 0 8px rgba(0,112,243,0.3);
+}
+
+/* 生成ボタン */
+.button {
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background-color: #0070f3;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.15s;
+}
+
+.button:hover:not(:disabled) {
+  background-color: #005bb5;
+  transform: scale(1.03);
+}
+
+.button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+/* エラー表示 */
+.error {
+  color: crimson;
+  margin-bottom: 16px;
+  font-weight: bold;
+}
+
+/* クイズカード */
+.quizBox {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 20px;
+  background-color: #fff;
+  transition: transform 0.2s;
+}
+
+.quizBox:hover {
+  transform: translateY(-2px);
+}
+
+/* 問題文 */
+.quizQuestion {
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+/* 選択肢ボタン */
+.choiceButton {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.choiceButton:hover:not(:disabled) {
+  background-color: #e6f0ff;
+  transform: scale(1.02);
+}
+
+.choiceButton.correct {
+  background-color: #a8e6a1;
+  border-color: #4caf50;
+  transition: background-color 0.5s;
+}
+
+.choiceButton.wrong {
+  background-color: #f8a1a1;
+  border-color: #f44336;
+  transition: background-color 0.5s;
+}
+
+/* 結果表示 */
+.result {
+  margin-top: 12px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  opacity: 0;
+  animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 600px) {
+  .button {
+    width: 100%;
+  }
+
+  .choiceButton {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+}
