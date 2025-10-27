@@ -1,144 +1,664 @@
-/* 全体コンテナ */
-.container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 0 16px;
-  font-family: "Inter", system-ui, sans-serif;
+.page {
+  min-height: 100vh;
+  background: linear-gradient(155deg, #f3f6ff 0%, #f9fafc 45%, #eef2ff 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px 64px;
+  box-sizing: border-box;
+  color: #1c1f24;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* タイトル */
+.container {
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.utilityBar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  background-color: rgba(59, 130, 246, 0.12);
+  color: #1e3a8a;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.navButton:hover {
+  transform: translateY(-2px);
+  background-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.18);
+}
+
+.soundToggle {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #312e81;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.soundToggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.22);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.soundToggleMuted {
+  border-color: rgba(148, 163, 184, 0.6);
+  background-color: rgba(148, 163, 184, 0.35);
+  color: #1e293b;
+}
+
+.soundToggleMuted:hover {
+  box-shadow: 0 10px 20px rgba(148, 163, 184, 0.35);
+}
+
 .title {
   text-align: center;
-  margin-bottom: 24px;
-  font-size: 2rem;
-  color: #333;
+  margin-bottom: 16px;
+  font-size: 2.4rem;
+  color: #111827;
+  letter-spacing: -0.02em;
 }
 
-/* フォーム */
-.form {
-  margin-bottom: 20px;
+.startScreen {
+  margin: 0 auto;
+  max-width: 600px;
+  padding: 36px 32px;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  backdrop-filter: blur(12px);
 }
 
-.input {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  margin-top: 4px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  transition: border-color 0.3s, box-shadow 0.3s;
+.logoBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.input:focus {
-  outline: none;
-  border-color: #0070f3;
-  box-shadow: 0 0 8px rgba(0,112,243,0.3);
+.startDescription {
+  font-size: 1.05rem;
+  color: #374151;
+  line-height: 1.8;
 }
 
-/* 生成ボタン */
-.button {
-  padding: 12px 24px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: none;
-  background-color: #0070f3;
-  color: white;
+.difficultyGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.difficultyLabel {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.difficultyOptions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.difficultyOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  background-color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.15s;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.difficultyOption input {
+  accent-color: #4f46e5;
+}
+
+.difficultyOptionActive {
+  border-color: #4f46e5;
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.18);
+  transform: translateY(-2px);
+  background: rgba(79, 70, 229, 0.12);
+}
+
+.notice {
+  text-align: center;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.gameHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-radius: 18px;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+  gap: 16px;
+}
+
+.appLogo {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #1d4ed8;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.appLogo::before {
+  content: "★";
+  font-size: 1rem;
+  color: #f59e0b;
+}
+
+.headerMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.difficultyBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #0f172a;
+  background-color: rgba(203, 213, 225, 0.4);
+}
+
+.difficultyBadgeeasy {
+  color: #047857;
+  background-color: rgba(16, 185, 129, 0.18);
+}
+
+.difficultyBadgenormal {
+  color: #2563eb;
+  background-color: rgba(59, 130, 246, 0.18);
+}
+
+.difficultyBadgehard {
+  color: #b91c1c;
+  background-color: rgba(248, 113, 113, 0.2);
+}
+
+.currentPrompt {
+  font-size: 0.95rem;
+  color: #334155;
+  background-color: rgba(226, 232, 240, 0.6);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border-radius: 18px;
+  background-color: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 44px rgba(15, 23, 42, 0.08);
+}
+
+.formStack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
+}
+
+.formLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.button,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 26px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.button {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #fff;
+  box-shadow: 0 16px 32px rgba(79, 70, 229, 0.35);
 }
 
 .button:hover:not(:disabled) {
-  background-color: #005bb5;
-  transform: scale(1.03);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 36px rgba(79, 70, 229, 0.38);
 }
 
 .button:disabled {
-  background-color: #aaa;
+  background: #a5b4fc;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
-/* エラー表示 */
-.error {
-  color: crimson;
-  margin-bottom: 16px;
-  font-weight: bold;
+.secondaryButton {
+  background-color: rgba(226, 232, 240, 0.8);
+  color: #1f2937;
 }
 
-/* クイズカード */
-.quizBox {
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  padding: 20px;
-  background-color: #fff;
-  transition: transform 0.2s;
-}
-
-.quizBox:hover {
+.secondaryButton:hover:not(:disabled) {
+  background-color: rgba(226, 232, 240, 1);
   transform: translateY(-2px);
 }
 
-/* 問題文 */
-.quizQuestion {
-  margin-bottom: 12px;
-  font-size: 1.1rem;
+.secondaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-/* 選択肢ボタン */
+.error {
+  color: #dc2626;
+  font-weight: 600;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background-color: rgba(254, 226, 226, 0.9);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+}
+
+.quizBox {
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  padding: 32px;
+  background-color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.quizHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.quizBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #1d4ed8;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.quizMeta {
+  font-size: 0.92rem;
+  color: #475569;
+}
+
+.quizQuestion {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.6;
+  color: #0f172a;
+}
+
+.choiceList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .choiceButton {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   width: 100%;
-  padding: 12px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 2px solid transparent;
   text-align: left;
   cursor: pointer;
-  background-color: #f5f5f5;
-  transition: background-color 0.3s, transform 0.1s;
+  background-color: rgba(241, 245, 249, 0.6);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease,
+    background-color 0.2s ease;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1e293b;
 }
 
 .choiceButton:hover:not(:disabled) {
-  background-color: #e6f0ff;
-  transform: scale(1.02);
+  transform: translateX(4px);
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.18);
+  border-color: rgba(59, 130, 246, 0.45);
+  background-color: rgba(219, 234, 254, 0.6);
 }
 
-.choiceButton.correct {
-  background-color: #a8e6a1;
-  border-color: #4caf50;
-  transition: background-color 0.5s;
+.choiceButton:disabled {
+  cursor: default;
 }
 
-.choiceButton.wrong {
-  background-color: #f8a1a1;
-  border-color: #f44336;
-  transition: background-color 0.5s;
+.choicePrefix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background-color: rgba(59, 130, 246, 0.18);
+  color: #1d4ed8;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
-/* 結果表示 */
+.choiceText {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.correct {
+  border-color: rgba(34, 197, 94, 0.6);
+  background-color: rgba(220, 252, 231, 0.9);
+  box-shadow: 0 16px 32px rgba(34, 197, 94, 0.26);
+  animation: popCorrect 0.4s ease;
+}
+
+.wrong {
+  border-color: rgba(248, 113, 113, 0.6);
+  background-color: rgba(254, 226, 226, 0.9);
+  box-shadow: 0 16px 32px rgba(248, 113, 113, 0.26);
+  animation: shake 0.4s ease;
+}
+
 .result {
-  margin-top: 12px;
-  font-weight: bold;
-  font-size: 1.1rem;
+  margin-top: 4px;
+  font-weight: 700;
+  font-size: 1.15rem;
+  padding: 16px 18px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  line-height: 1.6;
+  animation: fadeIn 0.4s ease forwards;
   opacity: 0;
-  animation: fadeIn 0.5s forwards;
+}
+
+.resultCorrect {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #047857;
+}
+
+.resultCorrect::before {
+  content: "✔";
+  font-weight: 700;
+}
+
+.resultWrong {
+  background-color: rgba(248, 113, 113, 0.18);
+  color: #b91c1c;
+}
+
+.resultWrong::before {
+  content: "✖";
+  font-weight: 700;
+}
+
+.explanationSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.explanationToggle {
+  align-self: flex-start;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #1e3a8a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.explanationToggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.2);
+}
+
+.explanationToggleActive {
+  border-color: rgba(34, 197, 94, 0.6);
+  background-color: rgba(220, 252, 231, 0.9);
+  color: #047857;
+}
+
+.explanationCard {
+  padding: 20px 22px;
+  border-radius: 16px;
+  background-color: rgba(248, 250, 252, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.explanationHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.explanationBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: rgba(59, 130, 246, 0.18);
+  color: #1d4ed8;
+}
+
+.explanationBody {
+  margin: 0;
+  line-height: 1.7;
+  color: #1f2937;
+  font-size: 0.98rem;
+}
+
+.explanationNotice {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.actionRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.loadingOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.28);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 100;
+  color: #f8fafc;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+
+.spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 6px solid rgba(148, 163, 184, 0.5);
+  border-top-color: #6366f1;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes popCorrect {
+  0% {
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translateX(-2px);
+  }
+  30%, 70% {
+    transform: translateX(4px);
+  }
+  50% {
+    transform: translateX(-4px);
+  }
 }
 
 @keyframes fadeIn {
-  to { opacity: 1; }
+  to {
+    opacity: 1;
+  }
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 600px) {
-  .button {
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 32px 12px 48px;
+  }
+
+  .formStack {
+    grid-template-columns: 1fr;
+  }
+
+  .gameHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .formActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .button,
+  .secondaryButton {
     width: 100%;
   }
 
-  .choiceButton {
-    font-size: 14px;
-    padding: 10px;
+  .quizBox {
+    padding: 24px;
   }
 
-  .title {
-    font-size: 1.6rem;
+  .choiceButton {
+    padding: 14px 16px;
   }
 }
