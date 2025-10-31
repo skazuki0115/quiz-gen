@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import ui from '../styles/ui.module.css';
 import styles from '../styles/History.module.css';
+import useSound from '../hooks/useSound';
 
 const difficultyLabels = {
   easy: 'かんたん',
@@ -11,6 +13,7 @@ const difficultyLabels = {
 };
 
 export default function HistoryPage() {
+  const { soundEnabled, toggleSound } = useSound(true);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,14 +58,14 @@ export default function HistoryPage() {
         acc[key] = (acc[key] || 0) + 1;
         return acc;
       },
-      { easy: 0, normal: 0, hard: 0 }
+      { easy: 0, normal: 0, hard: 0 },
     );
 
     const explanationAvg =
       total === 0
         ? 0
         : Math.round(
-            history.reduce((sum, item) => sum + (item.explanation?.length ?? 0), 0) / total
+            history.reduce((sum, item) => sum + (item.explanation?.length ?? 0), 0) / total,
           );
 
     const lastGeneratedAt = total > 0 ? history[history.length - 1].createdAt : null;
@@ -83,8 +86,9 @@ export default function HistoryPage() {
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
+        timeZone: 'Asia/Tokyo',
       }),
-    []
+    [],
   );
 
   return (
@@ -94,20 +98,28 @@ export default function HistoryPage() {
           <div>
             <h1 className={styles.title}>クイズ生成履歴</h1>
             <p className={styles.subtitle}>
-              生成したクイズと解説の履歴を振り返り、難易度別の傾向を確認できます。
+              これまでに生成したクイズと解説を振り返れます。進行状況の確認や、振り返りにご活用ください。
             </p>
           </div>
           <div className={styles.headerActions}>
             <Link href="/" className={styles.backLink}>
               トップへ戻る
             </Link>
+            <button
+              type="button"
+              className={`${ui.soundToggle}${soundEnabled ? '' : ` ${ui.soundToggleMuted}`}`}
+              onClick={toggleSound}
+              aria-pressed={soundEnabled}
+            >
+              {soundEnabled ? 'サウンド ON' : 'サウンド OFF'}
+            </button>
           </div>
         </header>
 
         {loading && (
           <div className={styles.statusCard}>
             <div className={styles.spinner} />
-            <p>履歴を読み込んでいます...</p>
+            <p>読み込み中です…</p>
           </div>
         )}
 
@@ -116,7 +128,7 @@ export default function HistoryPage() {
         {!loading && !error && history.length === 0 && (
           <div className={styles.emptyCard}>
             <h2>まだ履歴がありません</h2>
-            <p>トップページからクイズを生成すると、ここに解説付きで保存されます。</p>
+            <p>トップページでクイズを生成すると、ここに結果が自動で保存されます。</p>
             <Link href="/" className={styles.emptyAction}>
               クイズを生成する
             </Link>
@@ -127,11 +139,11 @@ export default function HistoryPage() {
           <>
             <section className={styles.summarySection}>
               <div className={styles.summaryCard}>
-                <span className={styles.summaryLabel}>累積生成数</span>
+                <span className={styles.summaryLabel}>生成回数</span>
                 <span className={styles.summaryValue}>{stats.total}</span>
               </div>
               <div className={styles.summaryCard}>
-                <span className={styles.summaryLabel}>難易度別</span>
+                <span className={styles.summaryLabel}>難易度の内訳</span>
                 <ul className={styles.summaryList}>
                   {['easy', 'normal', 'hard'].map(key => (
                     <li key={key}>
@@ -142,11 +154,11 @@ export default function HistoryPage() {
                 </ul>
               </div>
               <div className={styles.summaryCard}>
-                <span className={styles.summaryLabel}>解説平均文字数</span>
+                <span className={styles.summaryLabel}>解説の平均文字数</span>
                 <span className={styles.summaryValue}>{stats.explanationAvg}文字</span>
               </div>
               <div className={styles.summaryCard}>
-                <span className={styles.summaryLabel}>最終更新</span>
+                <span className={styles.summaryLabel}>最新の生成</span>
                 <span className={styles.summaryValue}>
                   {stats.lastGeneratedAt
                     ? formatter.format(new Date(stats.lastGeneratedAt))
@@ -156,9 +168,9 @@ export default function HistoryPage() {
             </section>
 
             <section className={styles.listSection}>
-              <h2 className={styles.sectionTitle}>生成履歴</h2>
+              <h2 className={styles.sectionTitle}>履歴一覧</h2>
               <p className={styles.sectionNote}>
-                最新の履歴が上に表示されます。解説はAIが生成した内容のため、利用時には確認を行ってください。
+                最新の項目から順に表示しています。AI が生成した内容のため、必要に応じて確認してください。
               </p>
               <ul className={styles.historyList}>
                 {[...history].reverse().map(entry => (
@@ -193,9 +205,7 @@ export default function HistoryPage() {
                               index === entry.answer ? ` ${styles.choiceRowCorrect}` : ''
                             }`}
                           >
-                            <span className={styles.choiceIndex}>
-                              {String.fromCharCode(65 + index)}
-                            </span>
+                            <span className={styles.choiceIndex}>{String.fromCharCode(65 + index)}</span>
                             <span className={styles.choiceText}>{choice}</span>
                             {index === entry.answer && <span className={styles.choiceTag}>正解</span>}
                           </li>

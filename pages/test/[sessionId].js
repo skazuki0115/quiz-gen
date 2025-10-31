@@ -127,13 +127,13 @@ export default function TestResultPage() {
           <div className={styles.summaryCard}>
             <span className={styles.summaryLabel}>受験日時</span>
             <span className={styles.summaryValue}>
-              {session.createdAt ? new Date(session.createdAt).toLocaleString('ja-JP') : '--'}
+              {session.createdAt ? formatDateTime(session.createdAt) : '--'}
             </span>
           </div>
           <div className={styles.summaryCard}>
             <span className={styles.summaryLabel}>完了日時</span>
             <span className={styles.summaryValue}>
-              {session.completedAt ? new Date(session.completedAt).toLocaleString('ja-JP') : '--'}
+              {session.completedAt ? formatDateTime(session.completedAt) : '--'}
             </span>
           </div>
         </section>
