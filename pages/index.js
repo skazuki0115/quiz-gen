@@ -4,6 +4,7 @@ import { useState } from 'react';
 import ModeSelection from '../components/ModeSelection';
 import PracticeMode from '../components/PracticeMode';
 import TestMode from '../components/TestMode';
+import DocumentMode from '../components/DocumentMode';
 import useSound from '../hooks/useSound';
 
 const difficultyOptions = [
@@ -40,6 +41,22 @@ export default function Home() {
   if (mode === 'practice') {
     return (
       <PracticeMode
+        difficultyOptions={difficultyOptions}
+        difficultyLabels={difficultyLabels}
+        playSound={playSound}
+        soundEnabled={soundEnabled}
+        toggleSound={toggleSound}
+        onBack={() => {
+          playSound('click');
+          setMode(null);
+        }}
+      />
+    );
+  }
+
+  if (mode === 'document') {
+    return (
+      <DocumentMode
         difficultyOptions={difficultyOptions}
         difficultyLabels={difficultyLabels}
         playSound={playSound}

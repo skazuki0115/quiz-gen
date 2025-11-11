@@ -7,19 +7,32 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Only POST' });
   }
 
-  const { prompt, difficulty } = req.body ?? {};
+  const { prompt, difficulty, sourceText, pdfFilename } = req.body ?? {};
+  const hasPrompt = typeof prompt === 'string' && prompt.trim() !== '';
+  const hasSource = typeof sourceText === 'string' && sourceText.trim() !== '';
 
-  if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
-    return res.status(400).json({ error: 'prompt is required' });
+  if (!hasPrompt && !hasSource) {
+    return res.status(400).json({ error: 'テーマを入力するかPDFを読み込んでください。' });
   }
 
   try {
-    const quiz = await generateQuiz({ prompt, difficulty: normalizeDifficulty(difficulty) });
+    const quiz = await generateQuiz({
+      prompt: hasPrompt ? prompt : '',
+      sourceText: hasSource ? sourceText : '',
+      difficulty: normalizeDifficulty(difficulty),
+    });
+
+    const historyPrompt =
+      hasPrompt && prompt
+        ? prompt.trim()
+        : pdfFilename
+          ? `[PDF] ${pdfFilename}`
+          : '[PDF] アップロード資料';
 
     try {
       appendHistory({
         id: randomUUID(),
-        prompt: prompt.trim(),
+        prompt: historyPrompt,
         difficulty: quiz.difficulty,
         question: quiz.question,
         choices: quiz.choices,

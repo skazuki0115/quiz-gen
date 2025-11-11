@@ -127,6 +127,91 @@
   flex-wrap: wrap;
 }
 
+.pdfSection {
+  border: 1px dashed rgba(148, 163, 184, 0.8);
+  border-radius: 16px;
+  padding: 18px 20px;
+  background: rgba(248, 250, 252, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pdfHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.pdfLabel {
+  margin: 0;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.pdfMeta {
+  display: flex;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #475569;
+  flex-wrap: wrap;
+}
+
+.pdfHint {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.pdfDropzone {
+  border: 2px dashed rgba(99, 102, 241, 0.5);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  background: rgba(238, 242, 255, 0.6);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.pdfDropzone:hover {
+  border-color: #6366f1;
+  background: rgba(224, 231, 255, 0.6);
+}
+
+.pdfDropzoneLoading {
+  border-style: solid;
+  border-color: rgba(99, 102, 241, 0.8);
+  opacity: 0.75;
+}
+
+.pdfInput {
+  margin-top: 10px;
+  display: inline-block;
+}
+
+.pdfSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pdfExcerpt {
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 12px;
+  color: #334155;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.pdfButtons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 1024px) {
   .practiceIntro {
     padding: 0;

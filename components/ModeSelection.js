@@ -1,4 +1,4 @@
-﻿import Link from 'next/link';
+import Link from 'next/link';
 import ui from '../styles/ui.module.css';
 import styles from '../styles/ModeSelection.module.css';
 
@@ -6,18 +6,26 @@ const modeCards = [
   {
     id: 'practice',
     title: '練習モード',
-    tagline: '気軽にウォームアップ',
-    description: 'テーマと難易度を選ぶだけで、1問ずつテンポよく確認できます。',
+    tagline: 'いつでもトレーニング',
+    description: 'テーマと難易度を自由に選んで、1問ずつAIクイズを楽しめます。',
     accent: 'blue',
-    highlights: ['解説はワンタップで確認','演習時にテーマと難易度変更可']
+    highlights: ['テーマ入力で即出題', '難易度の切り替えも自由'],
+  },
+  {
+    id: 'document',
+    title: 'PDFモード',
+    tagline: '資料から即クイズ',
+    description: 'PDFをアップロードすると、本文だけに基づく四択問題を生成します。',
+    accent: 'green',
+    highlights: ['PDFアップロード対応', '本文の事実に沿った出題'],
   },
   {
     id: 'test',
     title: '確認モード',
-    tagline: '本番前の腕試しに',
-    description: '名前とテーマを入れるだけで、AIが3問のテストを自動作成します。',
+    tagline: '本番さながら',
+    description: 'AIが3問連続で出題。ミニテスト感覚で腕試しができます。',
     accent: 'purple',
-    highlights: ['3問のテストを出題','テーマと難易度は固定']
+    highlights: ['3問のテスト形式', 'テーマと難易度はランダム'],
   },
 ];
 
@@ -44,11 +52,11 @@ export default function ModeSelection({ onSelect, soundEnabled, toggleSound, sur
               rel="noopener noreferrer"
               className={ui.navButton}
             >
-              アンケートに回答
+              アップデート希望を送る
             </a>
           )}
           <Link href="/history" className={ui.navButton}>
-            履歴を見る
+            最近の履歴
           </Link>
           <button
             type="button"
@@ -64,9 +72,9 @@ export default function ModeSelection({ onSelect, soundEnabled, toggleSound, sur
       <main className={styles.heroContent}>
         <div className={styles.heroCopy}>
           <p className={styles.heroEyebrow}>AI Quiz Lab</p>
-          <h1 className={styles.heroTitle}>AIクイズを体験してみよう!</h1>
+          <h1 className={styles.heroTitle}>AIクイズで学びを加速しよう</h1>
           <p className={styles.heroDescription}>
-            テーマと難易度を選ぶだけでAIがクイズを生成します。
+            テーマ入力・PDFアップロード・テスト形式など、目的に合わせてモードを選べます。
           </p>
         </div>
 
@@ -88,7 +96,7 @@ export default function ModeSelection({ onSelect, soundEnabled, toggleSound, sur
                   <li key={point}>{point}</li>
                 ))}
               </ul>
-              <span className={styles.modeCardCta}>このモードを選ぶ</span>
+              <span className={styles.modeCardCta}>このモードで始める</span>
             </button>
           ))}
         </div>
