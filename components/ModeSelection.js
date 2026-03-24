@@ -52,7 +52,7 @@ export default function ModeSelection({ onSelect, soundEnabled, toggleSound, sur
               rel="noopener noreferrer"
               className={ui.navButton}
             >
-              アップデート希望を送る
+              アンケート
             </a>
           )}
           <Link href="/history" className={ui.navButton}>

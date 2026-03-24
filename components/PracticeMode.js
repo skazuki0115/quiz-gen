@@ -8,8 +8,8 @@ import styles from '../styles/PracticeMode.module.css';
 const MODE_COPY = {
   practice: {
     introBadge: '練習モード',
-    introTitle: '好きなテーマで気軽にクイズ！',
-    introDescription: 'テーマと難易度を選ぶだけで、AIが1問ずつオリジナル問題を作成します。',
+    introTitle: '好きなテーマで気軽にクイズ',
+    introDescription: 'テーマと難易度を選ぶだけで、AIが1問ずつオリジナル問題を作ります。',
     introBullets: ['自由入力のテーマ', '難易度はその場で変更OK'],
     startButton: '練習を始める',
     headerTitle: '練習クイズ',
@@ -25,12 +25,12 @@ const MODE_COPY = {
     introBadge: 'PDFモード',
     introTitle: 'PDFから一瞬でクイズ化',
     introDescription:
-      '教材やスライドなどのPDFをアップロードすると、その本文に基づいた四択問題を自動生成します。',
+      '教材・スライドなどのPDFをアップロードすると、その本文に基づく四択問題を自動生成します。',
     introBullets: ['PDFをアップロードするだけ', '本文の事実に沿った出題'],
     startButton: 'PDFモードを開始',
     headerTitle: 'PDFクイズ',
     headerDescription: 'アップロードした資料の本文からAIが問題を作ります。',
-    promptLabel: '補足テーマ (任意)',
+    promptLabel: '補足テーマ（任意）',
     promptPlaceholder: '例: 重要ポイントを中心に など',
     promptOptional: true,
     promptRequiredMessage: 'PDFを読み込んでください。',
@@ -62,14 +62,7 @@ export default function PracticeMode({
   const variantKey = modeVariant ?? 'practice';
   const copy = MODE_COPY[variantKey] ?? MODE_COPY.practice;
   const enablePdfWorkflow = variantKey === 'document';
-  const pdfCopy = copy.pdf ?? {
-    label: 'PDF からクイズを生成',
-    hint: '5MB以下のPDFをアップロードすると本文から問題を作ります。',
-    dropMessage: 'PDFをドラッグ＆ドロップするか、ファイルを選択してください。',
-    uploading: 'テキストを抽出しています...',
-    useHint: '抽出したテキストをクイズ生成に使用します。',
-    buttonLabel: '別のPDFを選ぶ',
-  };
+  const pdfCopy = copy.pdf ?? MODE_COPY.document.pdf;
   const promptOptional = Boolean(copy.promptOptional);
 
   const [prompt, setPrompt] = useState('');
@@ -85,6 +78,9 @@ export default function PracticeMode({
   const [pdfMeta, setPdfMeta] = useState(null);
   const [pdfError, setPdfError] = useState(null);
   const [pdfUploading, setPdfUploading] = useState(false);
+  const [pdfIndexId, setPdfIndexId] = useState(null);
+  const [chapterOptions, setChapterOptions] = useState([]);
+  const [selectedChapter, setSelectedChapter] = useState('');
 
   const disableSubmit = loading || (enablePdfWorkflow && pdfUploading);
 
@@ -102,7 +98,7 @@ export default function PracticeMode({
         onClick={toggleSound}
         aria-pressed={soundEnabled}
       >
-        {soundEnabled ? 'サウンド ON' : 'サウンド OFF'}
+        {soundEnabled ? 'サウンドON' : 'サウンドOFF'}
       </button>
     </div>
   );
@@ -118,6 +114,9 @@ export default function PracticeMode({
     setPdfMeta(null);
     setPdfError(null);
     setPdfUploading(false);
+    setPdfIndexId(null);
+    setChapterOptions([]);
+    setSelectedChapter('');
   };
 
   const handlePdfUpload = async file => {
@@ -147,6 +146,10 @@ export default function PracticeMode({
         characters: data.characters,
         excerpt: data.excerpt,
       });
+      setPdfIndexId(data.pdfId || data.indexId || null);
+      const chapters = Array.isArray(data.chapters) ? data.chapters : [];
+      setChapterOptions(chapters);
+      setSelectedChapter(chapters[0]?.id ?? '');
     } catch (err) {
       setPdfError('PDFのアップロードに失敗しました: ' + String(err));
       clearPdfInput();
@@ -195,6 +198,7 @@ export default function PracticeMode({
 
     const hasPrompt = prompt.trim().length > 0;
     const hasPdf = enablePdfWorkflow && pdfText.trim().length > 0;
+    const needsChapter = enablePdfWorkflow && chapterOptions.length > 0;
 
     if (!enablePdfWorkflow && !hasPrompt) {
       setError(copy.promptRequiredMessage ?? 'テーマを入力してください。');
@@ -211,6 +215,11 @@ export default function PracticeMode({
       return;
     }
 
+    if (needsChapter && !selectedChapter) {
+      setError('章を選択してください。');
+      return;
+    }
+
     const payload = {
       prompt,
       difficulty,
@@ -220,6 +229,12 @@ export default function PracticeMode({
       payload.sourceText = pdfText;
       if (pdfMeta?.filename) {
         payload.pdfFilename = pdfMeta.filename;
+      }
+      if (pdfIndexId) {
+        payload.pdfIndexId = pdfIndexId;
+      }
+      if (selectedChapter) {
+        payload.chapterId = selectedChapter;
       }
     }
 
@@ -232,10 +247,23 @@ export default function PracticeMode({
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'クイズの作成に失敗しました。');
-      } else {
-        setQuiz(data.quiz);
+        setError(data.error || 'クイズの生成に失敗しました。');
+        return;
       }
+
+      const quizPayload = data.quiz;
+      console.log('quiz response', data);
+      if (
+        !quizPayload ||
+        typeof quizPayload.question !== 'string' ||
+        !Array.isArray(quizPayload.choices) ||
+        quizPayload.choices.length === 0
+      ) {
+        setError('生成結果が不正です。もう一度お試しください。（question/choices が空）');
+        return;
+      }
+
+      setQuiz(quizPayload);
     } catch (err) {
       setError('通信エラーが発生しました: ' + String(err));
     } finally {
@@ -254,6 +282,7 @@ export default function PracticeMode({
   const handleRetry = () => {
     const hasPrompt = prompt.trim().length > 0;
     const hasPdf = enablePdfWorkflow && pdfText.trim().length > 0;
+    const needsChapter = enablePdfWorkflow && chapterOptions.length > 0;
 
     if (!enablePdfWorkflow && !hasPrompt) {
       setError(copy.promptRequiredMessage ?? 'テーマを入力してください。');
@@ -267,6 +296,11 @@ export default function PracticeMode({
 
     if (enablePdfWorkflow && pdfUploading) {
       setError(copy.pdfUploadingMessage ?? 'PDFの解析が完了してから生成してください。');
+      return;
+    }
+
+    if (needsChapter && !selectedChapter) {
+      setError('章を選択してください。');
       return;
     }
 
@@ -332,9 +366,9 @@ export default function PracticeMode({
   const resultMessage =
     selected === null
       ? ''
-      : selected === quiz.answer
+      : selected === quiz?.answer
         ? '正解です！'
-        : `惜しい！正解は「${quiz.choices[quiz.answer]}」です。`;
+        : `惜しい！正解は「${quiz?.choices?.[quiz?.answer]}」です。`;
 
   return (
     <div className={layout.modePage}>
@@ -400,93 +434,76 @@ export default function PracticeMode({
                 onDrop={handlePdfDrop}
                 onDragOver={handlePdfDragOver}
               >
-                {pdfUploading ? (
-                  <p>{pdfCopy.uploading ?? 'テキストを抽出しています...'}</p>
-                ) : (
-                  <>
-                    <p>{pdfCopy.dropMessage}</p>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="application/pdf"
-                      className={styles.pdfInput}
-                      onChange={handlePdfInputChange}
-                      disabled={pdfUploading}
-                    />
-                  </>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="application/pdf"
+                  className={styles.pdfInput}
+                  onChange={handlePdfInputChange}
+                />
+                <p>{pdfUploading ? pdfCopy.uploading : pdfCopy.dropMessage}</p>
+                {pdfMeta && (
+                  <p className={styles.pdfUseHint}>
+                    {pdfCopy.useHint} 抜粋: {pdfMeta.excerpt || ''}
+                  </p>
+                )}
+                {pdfText && (
+                  <button type="button" className={ui.secondaryButton} onClick={handlePdfClear}>
+                    {pdfCopy.buttonLabel}
+                  </button>
                 )}
               </div>
-              {pdfMeta && (
-                <div className={styles.pdfSummary}>
-                  {pdfMeta.excerpt && <p className={styles.pdfExcerpt}>{pdfMeta.excerpt}</p>}
-                  <div className={styles.pdfButtons}>
-                    <span className={styles.pdfHint}>{pdfCopy.useHint}</span>
-                    <button
-                      type="button"
-                      className={ui.secondaryButton}
-                      onClick={handlePdfClear}
-                      disabled={pdfUploading || loading}
-                    >
-                      {pdfCopy.buttonLabel}
-                    </button>
-                  </div>
-                </div>
+              {chapterOptions.length > 0 && (
+                <label className={styles.formLabel}>
+                  章を選択
+                  <select
+                    value={selectedChapter}
+                    onChange={event => setSelectedChapter(event.target.value)}
+                    className={styles.select}
+                  >
+                    <option value="">選択してください</option>
+                    {chapterOptions.map(ch => (
+                      <option key={ch.id} value={ch.id}>
+                        {ch.title || ch.id}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               )}
-              {pdfError && <div className={ui.error}>{pdfError}</div>}
+              {pdfError && <p className={styles.errorText}>{pdfError}</p>}
             </section>
           )}
 
-          <div className={styles.formActions}>
-            <button type="submit" className={ui.button} disabled={disableSubmit}>
-              {loading ? '生成中...' : copy.submitLabel ?? 'クイズを生成'}
-            </button>
-            <button
-              type="button"
-              className={ui.secondaryButton}
-              onClick={handleBackToIntro}
-              disabled={disableSubmit}
-            >
-              {copy.backToIntroLabel ?? 'トップに戻る'}
-            </button>
-          </div>
+          {error && <div className={styles.formError}>{error}</div>}
+
+          <button type="submit" className={ui.button} disabled={disableSubmit}>
+            {loading ? '生成中...' : copy.submitLabel}
+          </button>
         </form>
 
-        {error && <div className={ui.error}>{error}</div>}
-
         {quiz && (
-          <QuestionCard
-            question={quiz}
-            selected={selected}
-            onSelect={handleSelectChoice}
-            disableChoices={selected !== null || loading}
-            showExplanation={showExplanation}
-            onToggleExplanation={() => {
-              playSound('click');
-              setShowExplanation(prev => !prev);
-            }}
-            resultMessage={resultMessage}
-            isCorrect={selected !== null && selected === quiz.answer}
-            footer={
-              <div className={styles.actionRow}>
-                <button
-                  type="button"
-                  className={ui.button}
-                  onClick={handleRetry}
-                  disabled={disableSubmit}
-                >
-                  {copy.retryButtonLabel ?? 'もう1問出題'}
-                </button>
-                <Link href="/history" className={ui.secondaryButtonLink}>
-                  履歴を見る
-                </Link>
-              </div>
-            }
-          />
+          <div className={styles.quizResult}>
+            <QuestionCard
+              question={quiz.question}
+              choices={quiz.choices}
+              answer={quiz.answer}
+              selected={selected}
+              onSelect={handleSelectChoice}
+              showExplanation={showExplanation}
+              explanation={quiz.explanation}
+              resultMessage={resultMessage}
+              isCorrect={selected !== null ? selected === quiz.answer : false}
+            />
+            <div className={styles.quizActions}>
+              <button type="button" className={ui.button} onClick={handleRetry} disabled={loading}>
+                {copy.retryButtonLabel}
+              </button>
+              <button type="button" className={ui.secondaryButton} onClick={handleBackToIntro}>
+                {copy.backToIntroLabel ?? 'トップに戻る'}
+              </button>
+            </div>
+          </div>
         )}
-
-        <footer className={layout.notice}>
-          生成された内容はAIによる自動作成です。重要な判断に使う場合は事実関係をご確認ください。
-        </footer>
       </div>
     </div>
   );

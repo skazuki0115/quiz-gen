@@ -1,6 +1,8 @@
 import formidable from 'formidable';
+import { randomUUID } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import pdfParse from 'pdf-parse';
+import { createPdfIndex, saveChunks } from '../../lib/vectorStore';
 
 export const config = {
   api: {
@@ -10,6 +12,10 @@ export const config = {
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_TEXT_LENGTH = 6000;
+const CHUNK_SIZE = 500;
+const CHUNK_OVERLAP = 80;
+// チャンク最大数（カバレッジ精度とインデックスサイズのトレードオフ）
+const MAX_CHUNKS = 400;
 
 function normalizeWhitespace(text = '') {
   return text
@@ -24,6 +30,102 @@ function normalizeWhitespace(text = '') {
 function takeExcerpt(text = '', limit = 200) {
   if (text.length <= limit) return text;
   return `${text.slice(0, limit).trim()}…`;
+}
+
+function detectChapters(text = '') {
+  const lines = text.split('\n');
+  const chapters = [];
+  let offset = 0;
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+    const headingMatch =
+      // Chapter 1, Chapter 3.2, 数字ドット形式 (3.1, 3.2.1)
+      /^\s*Chapter\s+\d+(\.\d+)?/i.test(trimmed) ||
+      /^\s*CHAPTER\s+\d+(\.\d+)?/.test(trimmed) ||
+      /^\s*\d+\.\d+(\.\d+)?/.test(trimmed);
+    if (headingMatch) {
+      chapters.push({
+        id: `chapter-${chapters.length + 1}`,
+        title: trimmed || `Chapter ${chapters.length + 1}`,
+        startOffset: offset,
+        lineIndex: index,
+      });
+    }
+    offset += line.length + 1;
+  });
+
+  if (chapters.length === 0) {
+    return [
+      {
+        id: 'chapter-1',
+        title: '全体',
+        startOffset: 0,
+        endOffset: text.length,
+      },
+    ];
+  }
+
+  return chapters.map((chapter, idx) => ({
+    ...chapter,
+    endOffset: chapters[idx + 1]?.startOffset ?? text.length,
+  }));
+}
+
+function buildChunks(text = '', chapters = []) {
+  const chunks = [];
+  const safeChapters =
+    chapters.length > 0 ? chapters : [{ id: 'chapter-1', title: '全体', startOffset: 0, endOffset: text.length }];
+
+  safeChapters.forEach(chapter => {
+    const chapterText = text.slice(chapter.startOffset, chapter.endOffset ?? text.length);
+    let pointer = 0;
+    while (pointer < chapterText.length && chunks.length < MAX_CHUNKS) {
+      const slice = chapterText.slice(pointer, pointer + CHUNK_SIZE);
+      const offset = (chapter.startOffset ?? 0) + pointer;
+      chunks.push({
+        id: randomUUID(),
+        text: slice,
+        offset,
+        length: slice.length,
+        chapterId: chapter.id,
+        chapterTitle: chapter.title,
+        pageNumber: null,
+      });
+      if (slice.length < CHUNK_SIZE) break;
+      pointer += CHUNK_SIZE - CHUNK_OVERLAP;
+    }
+  });
+
+  return chunks;
+}
+
+async function embedTexts(texts = []) {
+  if (!Array.isArray(texts) || texts.length === 0) return [];
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is not set');
+  }
+
+  const response = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'text-embedding-3-small',
+      input: texts,
+    }),
+  });
+
+  if (!response.ok) {
+    const payload = await response.text();
+    throw new Error(`Embedding failed: ${response.status} ${payload}`);
+  }
+
+  const payload = await response.json();
+  return payload.data?.map(item => item.embedding) ?? [];
 }
 
 function firstFile(files) {
@@ -90,12 +192,34 @@ export default async function handler(req, res) {
     }
 
     const trimmed = normalized.slice(0, MAX_TEXT_LENGTH);
+    const chapters = detectChapters(trimmed);
+    const chunkDefs = buildChunks(trimmed, chapters);
+    const embeddings = await embedTexts(chunkDefs.map(item => item.text));
+
+    const { id: pdfId } = createPdfIndex({
+      filename: file.originalFilename ?? 'uploaded.pdf',
+      pageCount: parsed.numpages ?? null,
+      characters: trimmed.length,
+    });
+
+    const chunkIds = saveChunks(
+      pdfId,
+      chunkDefs.map((chunk, index) => ({
+        ...chunk,
+        embedding: embeddings[index] ?? null,
+      }))
+    );
+
     return res.status(200).json({
       text: trimmed,
       characters: trimmed.length,
       pageCount: parsed.numpages ?? null,
       filename: file.originalFilename ?? 'uploaded.pdf',
       excerpt: takeExcerpt(trimmed, 260),
+      pdfId,
+      indexId: pdfId,
+      chunkCount: chunkIds?.length ?? chunkDefs.length ?? 0,
+      chapters: chapters.map(ch => ({ id: ch.id, title: ch.title })),
     });
   } catch (error) {
     console.error('PDF upload error:', error);

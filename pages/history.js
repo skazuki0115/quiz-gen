@@ -15,6 +15,7 @@ const difficultyLabels = {
 export default function HistoryPage() {
   const { soundEnabled, toggleSound } = useSound(true);
   const [history, setHistory] = useState([]);
+  const [coverage, setCoverage] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -31,6 +32,7 @@ export default function HistoryPage() {
         const data = await res.json();
         if (!cancelled) {
           setHistory(Array.isArray(data.history) ? data.history : []);
+          setCoverage(Array.isArray(data.coverage) ? data.coverage : []);
           setError(null);
         }
       } catch (err) {
@@ -111,7 +113,7 @@ export default function HistoryPage() {
               onClick={toggleSound}
               aria-pressed={soundEnabled}
             >
-              {soundEnabled ? 'サウンド ON' : 'サウンド OFF'}
+              {soundEnabled ? 'サウンドON' : 'サウンドOFF'}
             </button>
           </div>
         </header>
@@ -167,10 +169,28 @@ export default function HistoryPage() {
               </div>
             </section>
 
+            {coverage.length > 0 && (
+              <section className={styles.summarySection}>
+                <div className={styles.summaryCard}>
+                  <span className={styles.summaryLabel}>PDF網羅率</span>
+                  <ul className={styles.summaryList}>
+                    {coverage.map(item => (
+                      <li key={item.pdfId}>
+                        <span>{item.filename || item.pdfId}</span>
+                        <span>
+                          {(item.coverage * 100).toFixed(1)}% ({item.usedChunks}/{item.totalChunks})
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </section>
+            )}
+
             <section className={styles.listSection}>
               <h2 className={styles.sectionTitle}>履歴一覧</h2>
               <p className={styles.sectionNote}>
-                最新の項目から順に表示しています。AI が生成した内容のため、必要に応じて確認してください。
+                最新の項目から順に表示しています。AI が生成した内容のため、目的に応じて確認してください。
               </p>
               <ul className={styles.historyList}>
                 {[...history].reverse().map(entry => (
@@ -198,24 +218,25 @@ export default function HistoryPage() {
                     <div className={styles.choicesBlock}>
                       <span className={styles.itemLabel}>選択肢</span>
                       <ul className={styles.choiceList}>
-                        {entry.choices?.map((choice, index) => (
-                          <li
-                            key={index}
-                            className={`${styles.choiceRow}${
-                              index === entry.answer ? ` ${styles.choiceRowCorrect}` : ''
-                            }`}
-                          >
-                            <span className={styles.choiceIndex}>{String.fromCharCode(65 + index)}</span>
-                            <span className={styles.choiceText}>{choice}</span>
-                            {index === entry.answer && <span className={styles.choiceTag}>正解</span>}
+                        {entry.choices.map((choice, idx) => (
+                          <li key={choice + idx} className={styles.choiceItem}>
+                            <span className={styles.choiceIndex}>{idx + 1}.</span>
+                            <span>{choice}</span>
+                            {idx === entry.answer && <span className={styles.correctMark}>◎</span>}
                           </li>
                         ))}
                       </ul>
                     </div>
                     <div className={styles.itemExplanation}>
-                      <span className={styles.itemLabel}>解説（AI生成）</span>
+                      <span className={styles.itemLabel}>解説</span>
                       <p>{entry.explanation}</p>
                     </div>
+                    {(entry.chapterTitle || entry.chapterId) && (
+                      <div className={styles.metaRow}>
+                        <span className={styles.itemLabel}>章</span>
+                        <span>{entry.chapterTitle || entry.chapterId}</span>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
